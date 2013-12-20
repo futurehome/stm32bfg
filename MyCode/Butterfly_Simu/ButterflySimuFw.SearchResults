@@ -1,0 +1,5 @@
+---- iMark1 Matches (6 in 2 files) ----
+HostInteractionProtocols.c (d:\myprojects\butterfly\fw\avr):unsigned int iMark1;
+HostInteractionProtocols.c (d:\myprojects\butterfly\fw\avr):	sprintf(szTemp,"Mark1: %d, Mark2: %d, Diff: %d\n", iMark1, iMark2, (unsigned int)(iMark2 - iMark1));
+HostInteractionProtocols.c (d:\myprojects\butterfly\fw\avr):	if (iMark1 == 0) iMark1 = MACRO_GetTickCountRet;
+Std_defs.h (d:\myprojects\butterfly\fw\avr)://  unsigned int iMark1;
