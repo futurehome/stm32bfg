@@ -219,7 +219,6 @@ job_packet* JobPipe_FetchNewJobFromFifo(void)
 
 void JobPipe_AddJobResult2Fifo(u8 cChip)
 {
-	//shut down com2
 	//ComTransmitData(COM2, ",P",2);
 
 	// Append new job result to the current end pointer
