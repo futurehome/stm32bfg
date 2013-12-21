@@ -392,19 +392,29 @@
           <WinNumber>1</WinNumber>
           <ItemText>cJobResultFifoEnd</ItemText>
         </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cUsbReturnJobString</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>JobResultFifo</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>8</SubType>
-          <ItemText>0x2000020c</ItemText>
+          <ItemText>0x20002Fa0</ItemText>
         </Mm>
       </MemoryWindow1>
       <MemoryWindow2>
         <Mm>
           <WinNumber>2</WinNumber>
-          <SubType>8</SubType>
-          <ItemText>0x2000080c</ItemText>
+          <SubType>0</SubType>
+          <ItemText>0x20001c18</ItemText>
         </Mm>
       </MemoryWindow2>
       <MemoryWindow3>
@@ -577,8 +587,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>70</TopLine>
-      <CurrentLine>70</CurrentLine>
+      <TopLine>65</TopLine>
+      <CurrentLine>68</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\stm32_it.c</PathWithFileName>
       <FilenameWithoutPath>stm32_it.c</FilenameWithoutPath>
@@ -1877,10 +1887,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>11</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1152</TopLine>
-      <CurrentLine>1153</CurrentLine>
+      <TopLine>735</TopLine>
+      <CurrentLine>738</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\ASIC_Engine.c</PathWithFileName>
       <FilenameWithoutPath>ASIC_Engine.c</FilenameWithoutPath>
@@ -1963,8 +1973,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1580</TopLine>
-      <CurrentLine>1580</CurrentLine>
+      <TopLine>2109</TopLine>
+      <CurrentLine>2112</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\HostInteractionProtocols.c</PathWithFileName>
       <FilenameWithoutPath>HostInteractionProtocols.c</FilenameWithoutPath>
@@ -1975,10 +1985,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>14</ColumnNumber>
+      <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>25</TopLine>
-      <CurrentLine>29</CurrentLine>
+      <TopLine>24</TopLine>
+      <CurrentLine>27</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\JobPipe_Module.c</PathWithFileName>
       <FilenameWithoutPath>JobPipe_Module.c</FilenameWithoutPath>
@@ -2033,8 +2043,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>101</TopLine>
-      <CurrentLine>122</CurrentLine>
+      <TopLine>66</TopLine>
+      <CurrentLine>69</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\PipeProcessingKernel.c</PathWithFileName>
       <FilenameWithoutPath>PipeProcessingKernel.c</FilenameWithoutPath>
@@ -2244,19 +2254,43 @@
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>0</ActiveTab>
+      <ActiveTab>3</ActiveTab>
       <Documents>
         <Doc>
-          <Name>..\..\..\AVR\JobPipe_Module.c</Name>
-          <ColumnNumber>14</ColumnNumber>
-          <TopLine>25</TopLine>
-          <CurrentLine>29</CurrentLine>
+          <Name>..\..\..\AVR\ASIC_Engine.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>735</TopLine>
+          <CurrentLine>738</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\..\..\AVR\ASIC_Engine.c</Name>
-          <ColumnNumber>11</ColumnNumber>
-          <TopLine>1152</TopLine>
-          <CurrentLine>1153</CurrentLine>
+          <Name>..\src\stm32_it.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>65</TopLine>
+          <CurrentLine>68</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\src\main.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>97</TopLine>
+          <CurrentLine>100</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\AVR\JobPipe_Module.c</Name>
+          <ColumnNumber>30</ColumnNumber>
+          <TopLine>24</TopLine>
+          <CurrentLine>27</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\AVR\PipeProcessingKernel.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>66</TopLine>
+          <CurrentLine>69</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\AVR\HostInteractionProtocols.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>2109</TopLine>
+          <CurrentLine>2112</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\src\usb_endp.c</Name>
@@ -2275,18 +2309,6 @@
           <ColumnNumber>0</ColumnNumber>
           <TopLine>121</TopLine>
           <CurrentLine>124</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\AVR\PipeProcessingKernel.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>101</TopLine>
-          <CurrentLine>122</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\src\main.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>97</TopLine>
-          <CurrentLine>100</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\src\bf_general.c</Name>
@@ -2391,22 +2413,10 @@
           <CurrentLine>251</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\..\..\AVR\HostInteractionProtocols.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>1580</TopLine>
-          <CurrentLine>1580</CurrentLine>
-        </Doc>
-        <Doc>
           <Name>..\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_regs.c</Name>
           <ColumnNumber>0</ColumnNumber>
           <TopLine>63</TopLine>
           <CurrentLine>63</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\src\stm32_it.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>70</TopLine>
-          <CurrentLine>70</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\..\..\AVR\FAN_Subsystem.c</Name>
