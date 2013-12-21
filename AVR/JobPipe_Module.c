@@ -5,47 +5,43 @@
 #include <string.h>
 #include "bf_general.h"
 #include "bf_peripheral_uart.h"
+#include "bf_peripheral_timer.h"
+#include "HostInteractionProtocols.h"
+
 
 /*
  * JobPipe_Module.c
  *
- * Created: 08/10/2012 21:39:04
- *  Author: NASSER GHOSEIRI
- * Company: Butterfly Labs
+ * Created: 20/12/2013 
+ *  Author: Jiang Jun
+ * Company: 
+ * Breaf:  the flow of job assignment and result feedback are all rewrite.
  */ 
 
-////////////////////////////////////////////////////////////////////////////////
-/// This is our Pipelined job processing system 
-////////////////////////////////////////////////////////////////////////////////
 
-// Job interleaving
-//char __interleaved_was_last_job_loaded_into_engines;
-//char __interleaved_loading_progress_chip;
-//char __interleaved_loading_progress_engine;
-//char __interleaved_loading_progress_finished;
+extern __CHIP_PROCESSING_STATUS ChipMiningStatus[TOTAL_CHIPS_INSTALLED];
+extern unsigned int GLOBAL_ResBufferCompilationLatency;
+extern unsigned char __aux_CharMap[];
 
 // Information about the result we've done, change it to loop FIFO
 buf_job_result_packet JobResultFifo[PIPE_MAX_BUFFER_DEPTH];
 u8	cJobResultFifoStart;
 u8	cJobResultFifoEnd;
-//char __buf_job_results_count;  // Total of results in our __buf_job_results
-// New Job buffer,   I've change it to loop FIFO
 job_packet NewJobFifo[PIPE_MAX_BUFFER_DEPTH];
 u8	cNewJobFifoStart;
 u8	cNewJobFifoEnd;
 
-//Chip status,   this buffer is used for processing jobs
-extern __CHIP_PROCESSING_STATUS ChipMiningStatus[TOTAL_CHIPS_INSTALLED];
+const u8 cChipIdle_NoResult_String[] = "INPROCESS:0\nCOUNT:0\nOK\n";
+const u8 cChipMining_NoResult_String[] = "INPROCESS:1\nCOUNT:0\nOK\n";
+const u8 cChipMining_HaveResult_Presemble[] = "INPROCESS:1\nCOUNT:";
+const u8 cChipIdle_HaveResult_Presemble[] = "INPROCESS:0\nCOUNT:";
+__USB_RETURN_JOB_STATUS ReturnJobStatus;
+u8 cUsbReturnJobString[1024];
+u16 wUsbReturnJobStringEnd;
+u8 cUsbReturnJobIsUnfinished;
+u8 cUsbHaveReturnJobs;
+u16 wUsbReturnJobLeftStringPointer;
 
-//u8  __inprocess_SCQ_chip_processing[TOTAL_CHIPS_INSTALLED];
-//u8  __inprocess_SCQ_midstate[TOTAL_CHIPS_INSTALLED][32];
-//u8  __inprocess_SCQ_blockdata[TOTAL_CHIPS_INSTALLED][16];
-
-// In process information
-//char   __inprocess_midstate[32];
-//char   __inprocess_blockdata[12];
-
-//unsigned int    __total_jobs_in_buffer;
 unsigned int	__total_buf_pipe_jobs_ever_received;
 
 
@@ -54,15 +50,8 @@ unsigned int	__total_buf_pipe_jobs_ever_received;
 void JobPipe_init(void)
 {
 	u8 cChip;
-	// Initialize our buffer
-	//__total_jobs_in_buffer = 0;
-	__total_buf_pipe_jobs_ever_received = 0;
 
-	// Put zeros everywhere
-	//tx = 0;
-	//for (tx = 0; tx < sizeof(__inprocess_midstate); tx++) __inprocess_midstate[tx] = 0;
-	//for (tx = 0; tx < sizeof(__inprocess_blockdata); tx++) __inprocess_blockdata[tx] = 0;
-	//for (tx = 0; tx < sizeof(__inprocess_SCQ_chip_processing); tx++) __inprocess_SCQ_chip_processing[tx] = 0;
+	__total_buf_pipe_jobs_ever_received = 0;
 
 	//reset all chip state to idle
 	for(cChip=0; cChip<TOTAL_CHIPS_INSTALLED; cChip++)
@@ -75,61 +64,40 @@ void JobPipe_init(void)
 	//reset job buffer pointer start&end to zero, means no job exist
 	cNewJobFifoStart = 0;
 	cNewJobFifoEnd = 0;
-	
-	// Reset results...
-	//__buf_job_results_count = 0;
-	
-	// Clear interleaving
-	//__interleaved_loading_progress_chip = FALSE;
-	//__interleaved_loading_progress_engine = FALSE;
-	//__interleaved_loading_progress_finished = FALSE;
-	//__interleaved_was_last_job_loaded_into_engines = FALSE;
+	ReturnJobStatus = ChipIdle_NoResult;
+	cUsbReturnJobIsUnfinished = FALSE;
+	cUsbHaveReturnJobs = FALSE;
+	//"INPROCESS:0\nCOUNT:"
+	cUsbReturnJobString[0] = 'I';
+	cUsbReturnJobString[1] = 'N';
+	cUsbReturnJobString[2] = 'P';
+	cUsbReturnJobString[3] = 'R';
+	cUsbReturnJobString[4] = 'O';
+	cUsbReturnJobString[5] = 'C';
+	cUsbReturnJobString[6] = 'E';
+	cUsbReturnJobString[7] = 'S';
+	cUsbReturnJobString[8] = 'S';
+	cUsbReturnJobString[9] = ':';
+	cUsbReturnJobString[10] = '0';
+	cUsbReturnJobString[11] = '\n';
+	cUsbReturnJobString[12] = 'C';
+	cUsbReturnJobString[13] = 'O';
+	cUsbReturnJobString[14] = 'U';
+	cUsbReturnJobString[15] = 'N';
+	cUsbReturnJobString[16] = 'T';
+	cUsbReturnJobString[17] = ':';
+	cUsbReturnJobString[18] = '0';
+	wUsbReturnJobStringEnd = 20;		//need to skip 2 bytes of  job count char and RETURN char
 }
 
 void JobPipe__pipe_flush_buffer(void)
 {
-	/*
-	// simply reset its counter;
-	#if defined(FLUSH_CLEAR_RESULTS_BUFFER)
-		__buf_job_results_count = 0; // NOTE: CHANGED ON REQUEUST, DO NOT LOOSE JOB RESULTS!
-	#endif
-	__total_jobs_in_buffer	= 0;
-	
-	// Interleaved reset...
-	__interleaved_was_last_job_loaded_into_engines = FALSE;
-	__interleaved_loading_progress_finished = FALSE;
-	__interleaved_loading_progress_engine = FALSE;
-	__interleaved_loading_progress_chip = FALSE;	
-	*/
-
-	//In this fuction, I guess only clear job results in buffer,   changed by JJ
+	//In this fuction, I guess clear job results and new jobs in buffer,   changed by JJ
 	cJobResultFifoStart = 0;
 	cJobResultFifoEnd	= 0;
 	cNewJobFifoEnd = 0;
 	cNewJobFifoStart = 0;
 }
-
-/*
-char JobPipe__pipe_ok_to_pop(void)
-{
-	return ((__total_jobs_in_buffer > 0) ? 1 : 0);
-}
-
-char JobPipe__available_space(void)
-{
-	// simply reset its counter;
-	return ((__total_jobs_in_buffer > PIPE_MAX_BUFFER_DEPTH) ? 0 : (PIPE_MAX_BUFFER_DEPTH - __total_jobs_in_buffer));
-}
-
-char JobPipe__pipe_ok_to_push()
-{
-	return ((__total_jobs_in_buffer < PIPE_MAX_BUFFER_DEPTH) ? 1 : 0);
-}
-
-char	JobPipe__total_jobs_in_pipe()
-{
-	return __total_jobs_in_buffer;
-}*/
 
 u8 cNewJobFifoFullFlag(void)
 {
@@ -218,7 +186,7 @@ u8 cJobResultFifoEmptyFlag(void)
 
 void JobPipe_AddNewJob2Fifo(job_packet* _NewJobPacket)
 {
-	ComTransmitData(COM2, ",P",2);
+	//ComTransmitData(COM2, ",P",2);
 
 	// Copy new job to the current end pointer
 	memcpy((void*)(&(NewJobFifo[cNewJobFifoEnd])),(void*)_NewJobPacket, sizeof(job_packet));
@@ -234,7 +202,7 @@ void JobPipe_AddNewJob2Fifo(job_packet* _NewJobPacket)
 job_packet* JobPipe_FetchNewJobFromFifo(void)
 {
 	job_packet* FetchedNewJob;
-	ComTransmitData(COM2, ",p",2);
+	//ComTransmitData(COM2, ",p",2);
 
 	FetchedNewJob = (job_packet*)(&(NewJobFifo[cNewJobFifoStart]));
 
@@ -251,7 +219,7 @@ job_packet* JobPipe_FetchNewJobFromFifo(void)
 
 void JobPipe_AddJobResult2Fifo(u8 cChip)
 {
-	ComTransmitData(COM2, ",P",2);
+	//ComTransmitData(COM2, ",P",2);
 
 	// Append new job result to the current end pointer
 	memcpy((void*)JobResultFifo[cJobResultFifoEnd].midstate, (void*)ChipMiningStatus[cChip].cMidstate, SHA_MIDSTATE_SIZE);
@@ -272,7 +240,7 @@ buf_job_result_packet* JobPipe_FetchJobResultFromFifo(void)
 {
 	buf_job_result_packet * FetchedJobResult;
 
-	ComTransmitData(COM2, ",p",2);
+	//ComTransmitData(COM2, ",p",2);
 
 	FetchedJobResult = (buf_job_result_packet*)(&(JobResultFifo[cJobResultFifoStart]));
 
@@ -348,167 +316,147 @@ u8 JobPipe_GetNewJobCountInFifo(void)
 	return cResultCount;
 }
 
-/*
-char JobPipe__pipe_push_job(void* __input_pipe_job_info)
+//In this function, check job result buffer and usb job feedback buffer status
+//If there are results and usb feedback buffer is empty, then convert job result to feedback string,
+//at last, set flag to indicate may response result to USB ZOX command
+void JobPipe_ConvertJobResult2UsbStringBuffer(void)
 {
-	// Is it ok to push a job into stack?
-	if (!JobPipe__pipe_ok_to_push()) return PIPE_JOB_BUFFER_FULL;
-	ComTransmitData(COM2, ",P",2);
-	// Copy memory block
-	memcpy((void*)((char*)(PIPE_PROC_BUF) + (__total_jobs_in_buffer * sizeof(job_packet))),
-		   __input_pipe_job_info, sizeof(job_packet));
-
-	// Increase the total jobs available in the stack
-	__total_jobs_in_buffer++;
-
-	// Proceed... All is ok!
-	return PIPE_JOB_BUFFER_OK;
-}*/
-
-/*
-char JobPipe__pipe_pop_job(void* __output_pipe_job_info)
-{
-	char tx;
-	// Is it ok to pop a job from the stack?
-	if (!JobPipe__pipe_ok_to_pop()) return PIPE_JOB_BUFFER_EMPTY;
-
-	ComTransmitData(COM2, ",p",2);
-	// Copy memory block (from element 0)
-	memcpy(__output_pipe_job_info,
-		  (void*)((char*)(PIPE_PROC_BUF) + (0 * sizeof(job_packet))),
-		  sizeof(job_packet));
-
-	// Shift all elements back
-	tx = 0;
-	for (tx = 1; tx < __total_jobs_in_buffer; tx++)
+	u8 i, j, k;
+	u8 cJobResultCount;
+	//u8 cPreviousJobResultCount;
+	//u8 cTempChar;
+	
+	GLOBAL_ResBufferCompilationLatency = MACRO_GetTickCountRet;
+	
+	if(cUsbReturnJobIsUnfinished != TRUE)			//ZOX unfinished, just waiting and do nothing
 	{
-		memcpy((void*)((char*)(PIPE_PROC_BUF) + ((tx - 1) * sizeof(job_packet))),
-			   (void*)((char*)(PIPE_PROC_BUF) + (tx * sizeof(job_packet))),
-			   sizeof(job_packet));
+		cJobResultCount = JobPipe_GetJobResultCountInFifo();
+		if(cJobResultCount != 0)	//if=0,there is no result, do nothing, just return
+		{
+			//we need to check return string buffer, if there are some result strings, the new job
+			//result should append at end, and increase result count, be careful!  the string length
+			//should be within the buffer size
+			//cPreviousJobResultCount = cUsbReturnJobString[18];
+			if((ReturnJobStatus != Mining_HaveResult) && (ReturnJobStatus != ChipIdle_HaveResult))
+			{
+				if(cJobResultCount > MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER)
+				{
+					cJobResultCount = MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER;
+				}
+
+				//convert refreshed job count to ascii charactor
+				cUsbReturnJobString[18] = cJobResultCount | 0x30; 
+				cUsbReturnJobString[19] = '\n';			//should be RETURN char
+				for(i=0; i<cJobResultCount; i++)
+				{
+					//convert and store midstate
+					for (j = 0; j < 32; j++)
+					{
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResultFifo[cJobResultFifoStart].midstate[j]);
+						wUsbReturnJobStringEnd ++;
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResultFifo[cJobResultFifoStart].midstate[j]);
+						wUsbReturnJobStringEnd ++;
+					}
+					//adding a comma
+					cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
+					wUsbReturnJobStringEnd ++;
+					//convert and store block data
+					for (j = 0; j < 12; j++)
+					{
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResultFifo[cJobResultFifoStart].block_data[j]);
+						wUsbReturnJobStringEnd ++;
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResultFifo[cJobResultFifoStart].block_data[j]);
+						wUsbReturnJobStringEnd ++;
+					}
+					//adding a comma
+					cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
+					wUsbReturnJobStringEnd ++;
+					//adding chip number
+					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResultFifo[cJobResultFifoStart].iProcessingChip];
+					wUsbReturnJobStringEnd ++;
+					//adding a comma
+					cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
+					wUsbReturnJobStringEnd ++;
+					//adding nonce count
+					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResultFifo[cJobResultFifoStart].i_nonce_count];
+					wUsbReturnJobStringEnd ++;
+					//adding nonce list
+					if(JobResultFifo[cJobResultFifoStart].i_nonce_count > 0)
+					{
+						for(k=0; k<JobResultFifo[cJobResultFifoStart].i_nonce_count; k++)
+						{
+							//adding a comma
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
+							wUsbReturnJobStringEnd ++;
+							//adding a nonce
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 28) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 24) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 20) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 16) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 12) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 8) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 4) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k]) & 0x0F];
+							wUsbReturnJobStringEnd ++;
+						}
+					}
+					else    //nonce count = 0, do nothing
+					{
+						;
+					}
+					cUsbReturnJobString[wUsbReturnJobStringEnd] = '\n';
+					wUsbReturnJobStringEnd ++;
+			
+
+					//finished to convert and store a job result, increase result buffer start pointer
+					cJobResultFifoStart ++;
+				}
+				cUsbReturnJobString[wUsbReturnJobStringEnd] = 'O';
+				wUsbReturnJobStringEnd ++;
+				cUsbReturnJobString[wUsbReturnJobStringEnd] = 'K';
+				wUsbReturnJobStringEnd ++;
+				cUsbReturnJobString[wUsbReturnJobStringEnd] = '\n';
+				wUsbReturnJobStringEnd ++;
+				cUsbReturnJobString[wUsbReturnJobStringEnd] = 0;
+				wUsbReturnJobStringEnd ++;
+			}
+
+			//according to chip state: mining or idle, and result count, set corresponding presemble
+			ReturnJobStatus = ChipIdle_HaveResult;
+			cUsbReturnJobString[10] = '0';
+			for(i=0; i<TOTAL_CHIPS_INSTALLED; i++)
+			{
+				if(ChipMiningStatus[i].ChipState == MINING)
+				{
+					ReturnJobStatus = Mining_HaveResult;
+					cUsbReturnJobString[10] = '1';
+					break;
+				}
+			}
+		}
+		else
+		{
+			/*
+			ReturnJobStatus = ChipIdle_NoResult;
+			for(i=0; i<TOTAL_CHIPS_INSTALLED; i++)
+			{
+				if(ChipMiningStatus[i].ChipState == MINING)
+				{
+					ReturnJobStatus = Mining_NoResult;
+					break;
+				}
+			}*/
+		}
 	}
 
-	// Reduce total of jobs available in the stack
-	__total_jobs_in_buffer--;
-
-	// Proceed... All is ok!
-	return PIPE_JOB_BUFFER_OK;
-}*/
-
-/*
-char JobPipe__pipe_preview_next_job(void* __output_pipe_job_info)
-{
-	// If no job is in the buffer, don't do anything...
-	if (__total_jobs_in_buffer == 0) return PIPE_JOB_BUFFER_EMPTY;
-	
-	// Copy memory block (from element 0)
-	memcpy(__output_pipe_job_info,
-		   (void*)((char*)(PIPE_PROC_BUF)),
-		   sizeof(job_packet));
-
-	// Proceed... All is ok!
-	return PIPE_JOB_BUFFER_OK;	
-}*/
-
-/*
-void* JobPipe__pipe_get_buf_job_result(unsigned int iIndex)
-{
-	return (void*)&__buf_job_results[iIndex];
-}
-*/
-/*
-void  JobPipe__pipe_skip_buf_job_results(unsigned int iTotalToSkip)
-{
-	char iTotalActualResults;
-	char umr;
-	if (iTotalToSkip == 0) return; // Nothing special to do really...
-		
-	// Flush these amount of jobs from results
-	iTotalActualResults = __buf_job_results_count;
-	if (iTotalToSkip >= iTotalActualResults)
-	{
-		// Just clear the results buffer
-		__buf_job_results_count = 0;
-		return;
-	}
-	
-	// Copy the results backward	
-	for (umr = iTotalToSkip; umr < iTotalActualResults; umr++)
-	{
-		memcpy(&__buf_job_results[umr - iTotalToSkip],
-			   (void*)(&__buf_job_results[umr]),
-			   sizeof(buf_job_result_packet));				   
-	}
-	
-	__buf_job_results_count -= iTotalToSkip;
-}*/
-
-/*
-unsigned int JobPipe__pipe_get_buf_job_results_count(void)
-{
-	return __buf_job_results_count;
+	GLOBAL_ResBufferCompilationLatency = MACRO_GetTickCountRet - GLOBAL_ResBufferCompilationLatency;
 }
 
-void JobPipe__pipe_set_buf_job_results_count(unsigned int iCount)
-{
-	__buf_job_results_count = iCount;
-}
-
-void JobPipe__set_was_last_job_loaded_in_engines(char iVal)
-{
-	__interleaved_was_last_job_loaded_into_engines = iVal;
-}
-
-char JobPipe__get_was_last_job_loaded_in_engines()
-{
-	return __interleaved_was_last_job_loaded_into_engines;
-}
-*/
-/*
-void JobPipe__set_interleaved_loading_progress_chip(char iVal)
-{
-	__interleaved_loading_progress_chip = iVal;
-}
-
-char JobPipe__get_interleaved_loading_progress_chip()				 
-{
-	return __interleaved_loading_progress_chip;
-}
-
-void JobPipe__set_interleaved_loading_progress_engine(char iVal)
-{
-	__interleaved_loading_progress_engine = iVal;
-}
-
-char JobPipe__get_interleaved_loading_progress_engine()
-{
-	return __interleaved_loading_progress_engine;
-}
-
-void JobPipe__set_interleaved_loading_progress_finished(char iVal)
-{
-	__interleaved_loading_progress_finished = iVal;
-}
-
-char JobPipe__get_interleaved_loading_progress_finished()
-{
-	return __interleaved_loading_progress_finished;
-}
-*/
-
-	
-///////////////////
-// TEST FUNCTIONS
-
-/*
-void JobPipe__test_buffer_shifter(void)
-{
-	char pIndex;
-	// Then move all items one-index back (resulting in loss of the job-result at index 0)
-	for (pIndex = 0; pIndex < PIPE_MAX_BUFFER_DEPTH - 1; pIndex += 1) // PIPE_MAX_BUFFER_DEPTH - 1 because we don't touch the last item in queue
-	{
-		memcpy((void*)__buf_job_results[pIndex].midstate, 	(void*)__buf_job_results[pIndex+1].midstate, 	32);
-		memcpy((void*)__buf_job_results[pIndex].block_data, (void*)__buf_job_results[pIndex+1].block_data, 	12);
-		memcpy((void*)__buf_job_results[pIndex].nonce_list,	(void*)__buf_job_results[pIndex+1].nonce_list,  8*sizeof(u32)); // 8 nonces maximum
-	}	
-}*/
 

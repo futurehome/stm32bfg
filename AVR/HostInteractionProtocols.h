@@ -73,10 +73,11 @@
 #define PROTOCOL_REQ_FAN_AUTO				48+9  // 9
 
 #define PROTOCOL_OUT_PIPE_PENDING			0xE0		//added by JJ
-extern const unsigned char __aux_CharMap[16];
+//extern unsigned char __aux_CharMap[];
 
 #define _AUX_LEFT_HEX(x)   (__aux_CharMap[((x & 0xF0) >> 4)]) 
 #define _AUX_RIGHT_HEX(x)  (__aux_CharMap[(x & 0x0F)])
+
 
 
 //state machine flag, for code split				added by JJ
@@ -145,6 +146,9 @@ PROTOCOL_RESULT Protocol_xlink_allow_pass(void);
 PROTOCOL_RESULT Protocol_xlink_deny_pass(void);
 PROTOCOL_RESULT Protocol_xlink_presence_detection(void);
 PROTOCOL_RESULT	Protocol_PIPE_BUF_STATUS(void);
+void UsbSendTheLeftJobResult(void);
+
+
 
 
 // Flush the P2P job into engine

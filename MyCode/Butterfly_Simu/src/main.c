@@ -49,6 +49,7 @@
 #include "USBProtocol_Module.h"
 #include "HostInteractionProtocols.h"
 #include "bf_peripheral_timer.h"
+#include "jobpipe_module.h"
 
 
 
@@ -77,6 +78,7 @@ extern unsigned int DEBUG_LastXLINKTransTook;
 extern BF_USB_PROTOCOL_OUT_PIPE_DATA_BELONGS_Def UsbOutDataBelongs;
 extern u8 cUsbConfigured;
 extern SOFT_TIMER SoftTimer0;
+extern u8 cUsbReturnJobIsUnfinished;
 
 
 uint32_t dwTotalSendBytes;
@@ -130,8 +132,8 @@ int main(void)
 	BF_Timer1_Init();
 	BF_Timer2_Init();
 	BF_Timer3_Init();
-	LM75_Init();
-	StartLm75();
+	//LM75_Init();
+	//StartLm75();
 	BF_SPI_Init();
 	//dwTemp = BF_SpiSimu_FlashReadID();
 	AVR_main();
@@ -168,6 +170,11 @@ int main(void)
 		if(cUsbConfigured == TRUE)
 		{
 			Microkernel_Spin();
+			JobPipe_ConvertJobResult2UsbStringBuffer();
+			if(cUsbReturnJobIsUnfinished == TRUE)
+			{
+				UsbSendTheLeftJobResult();
+			}
 			if(SoftTimer0.cTimerAlarm == TRUE)
 			{
 				if(UsbOutDataBelongs != FREE_DATA)

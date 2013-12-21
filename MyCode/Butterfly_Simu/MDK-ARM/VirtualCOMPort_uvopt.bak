@@ -360,62 +360,37 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>cUsbReceiveLoopBuffer</ItemText>
+          <ItemText>UsbEvent</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>wReceiveLoopBufferStart</ItemText>
+          <ItemText>__chip_existence_map</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>wReceiveLoopBufferEnd</ItemText>
+          <ItemText>ChipMiningStatus</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dwSystemTickCounterHighWord</ItemText>
+          <ItemText>cNewJobFifoStart</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>SoftTimer0</ItemText>
+          <ItemText>cNewJobFifoEnd</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>__buf_job_results_count</ItemText>
+          <ItemText>cJobResultFifoStart</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>__buf_job_results</ItemText>
-        </Ww>
-        <Ww>
-          <count>8</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>cUsbSendLoopBuffer</ItemText>
-        </Ww>
-        <Ww>
-          <count>9</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>wSendLoopBufferStart</ItemText>
-        </Ww>
-        <Ww>
-          <count>10</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>wSendLoopBufferEnd</ItemText>
-        </Ww>
-        <Ww>
-          <count>11</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>UsbEvent</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>__total_jobs_in_buffer</ItemText>
+          <ItemText>cJobResultFifoEnd</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -518,8 +493,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>190</TopLine>
-      <CurrentLine>193</CurrentLine>
+      <TopLine>97</TopLine>
+      <CurrentLine>100</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -544,10 +519,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>16</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>85</TopLine>
-      <CurrentLine>91</CurrentLine>
+      <TopLine>697</TopLine>
+      <CurrentLine>700</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\usb_endp.c</PathWithFileName>
       <FilenameWithoutPath>usb_endp.c</FilenameWithoutPath>
@@ -658,8 +633,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>987</TopLine>
-      <CurrentLine>987</CurrentLine>
+      <TopLine>1004</TopLine>
+      <CurrentLine>1004</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\bf_peripheral_lm75.c</PathWithFileName>
       <FilenameWithoutPath>bf_peripheral_lm75.c</FilenameWithoutPath>
@@ -1902,10 +1877,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>11</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>3841</TopLine>
-      <CurrentLine>3844</CurrentLine>
+      <TopLine>1152</TopLine>
+      <CurrentLine>1153</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\ASIC_Engine.c</PathWithFileName>
       <FilenameWithoutPath>ASIC_Engine.c</FilenameWithoutPath>
@@ -2000,10 +1975,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>28</ColumnNumber>
+      <ColumnNumber>14</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>34</TopLine>
-      <CurrentLine>40</CurrentLine>
+      <TopLine>25</TopLine>
+      <CurrentLine>29</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\JobPipe_Module.c</PathWithFileName>
       <FilenameWithoutPath>JobPipe_Module.c</FilenameWithoutPath>
@@ -2030,8 +2005,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>155</TopLine>
-      <CurrentLine>155</CurrentLine>
+      <TopLine>121</TopLine>
+      <CurrentLine>124</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\Main_BitforceSC.c</PathWithFileName>
       <FilenameWithoutPath>Main_BitforceSC.c</FilenameWithoutPath>
@@ -2058,8 +2033,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>858</TopLine>
-      <CurrentLine>861</CurrentLine>
+      <TopLine>101</TopLine>
+      <CurrentLine>122</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\PipeProcessingKernel.c</PathWithFileName>
       <FilenameWithoutPath>PipeProcessingKernel.c</FilenameWithoutPath>
@@ -2272,34 +2247,46 @@
       <ActiveTab>0</ActiveTab>
       <Documents>
         <Doc>
-          <Name>..\..\..\AVR\PipeProcessingKernel.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>858</TopLine>
-          <CurrentLine>861</CurrentLine>
+          <Name>..\..\..\AVR\JobPipe_Module.c</Name>
+          <ColumnNumber>14</ColumnNumber>
+          <TopLine>25</TopLine>
+          <CurrentLine>29</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\..\..\AVR\ASIC_Engine.c</Name>
+          <ColumnNumber>11</ColumnNumber>
+          <TopLine>1152</TopLine>
+          <CurrentLine>1153</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\src\usb_endp.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>3841</TopLine>
-          <CurrentLine>3844</CurrentLine>
+          <TopLine>697</TopLine>
+          <CurrentLine>700</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\src\bf_peripheral_lm75.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>1004</TopLine>
+          <CurrentLine>1004</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\AVR\Main_BitforceSC.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>121</TopLine>
+          <CurrentLine>124</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\AVR\PipeProcessingKernel.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>101</TopLine>
+          <CurrentLine>122</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\src\main.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>190</TopLine>
-          <CurrentLine>193</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\src\usb_endp.c</Name>
-          <ColumnNumber>16</ColumnNumber>
-          <TopLine>85</TopLine>
-          <CurrentLine>91</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\AVR\JobPipe_Module.c</Name>
-          <ColumnNumber>28</ColumnNumber>
-          <TopLine>34</TopLine>
-          <CurrentLine>40</CurrentLine>
+          <TopLine>97</TopLine>
+          <CurrentLine>100</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\src\bf_general.c</Name>
@@ -2398,12 +2385,6 @@
           <CurrentLine>162</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\..\..\AVR\Main_BitforceSC.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>155</TopLine>
-          <CurrentLine>155</CurrentLine>
-        </Doc>
-        <Doc>
           <Name>..\src\bf_peripheral_timer.c</Name>
           <ColumnNumber>0</ColumnNumber>
           <TopLine>251</TopLine>
@@ -2438,12 +2419,6 @@
           <ColumnNumber>38</ColumnNumber>
           <TopLine>139</TopLine>
           <CurrentLine>139</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\src\bf_peripheral_lm75.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>987</TopLine>
-          <CurrentLine>987</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_init.c</Name>

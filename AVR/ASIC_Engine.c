@@ -26,6 +26,7 @@
 extern SOFT_TIMER SoftTimer1;
 extern SOFT_TIMER ChipSoftTimer[TOTAL_CHIPS_INSTALLED];
 extern __CHIP_PROCESSING_STATUS ChipMiningStatus[TOTAL_CHIPS_INSTALLED];
+extern unsigned char __aux_CharMap[];
 
 u16 __chip_existence_map[TOTAL_CHIPS_INSTALLED]; // Bit 0 to Bit 16 in each word says if the engine is OK or not...
 unsigned int __internal_global_iChipCount;
@@ -48,6 +49,7 @@ unsigned int GLOBAL_LAST_ASIC_IS_PROCESSING_LATENCY;
   static   unsigned int __ActualRegister0Value = (1<<13);
 //static   unsigned int __ActualRegister0Value = (1);
 
+/*
 // Midstate for SHA2-Core, this is static and must be hard-coded in the chip
 static const unsigned int STATIC_H1[8] = {
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -71,8 +73,8 @@ static const unsigned int STATIC_W0[64] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
-
+};*/
+/*
 const job_packet Jb1 = {{0xE6,0x18,0x6E,0xD1,0xF6,0x67,0xA5,0xBD,0xEC,0x43,0x10,0x8B,0x9C,0xD1,0x14,0x43,0x7C,0x86,0x6A,0x57,0x44,0xAC,0x68,0x50,0x68,0xA8,0x09,0x6A,0xF2,0xF4,0x3F,0x71},
 							{0x4A,0x85,0xCD,0x2A,0x51,0xA2,0x7F,0x59,0x1A,0x01,0x61,0x64},0xAA};
 	const unsigned int Jb1NonceCount = 5;
@@ -297,7 +299,7 @@ const job_packet Jb1 = {{0xE6,0x18,0x6E,0xD1,0xF6,0x67,0xA5,0xBD,0xEC,0x43,0x10,
 							 {0x91,0x19,0x0F,0x1A,0x51,0xA4,0xF3,0xAF,0x1A,0x01,0x61,0x64},0xAA};
 	const unsigned int Jb45NonceCount = 5;
 	const unsigned int Jb45Nonces[] = {0x017E8A19,0x528D4959,0x5C1FCB93,0x7AFEAC51,0xAB6B205B};
-	
+*/	
 	const char __stat_blockdata[] = {0xAC,0x84,0xF5,0x8B,0x4D,0x59,0xB7,0x4D,0x1B,0x2,0x85,0x52};
 	//const char __stat_blockdata[] = {0xAC,0x84,0xF5,0x8B,0x4D,0x59,0xB7,0x4D,0x1B,0x2,0x85,0x52};
 	const char __stat_midstate[]	= {0x3C,0x42,0x49,0xA8,0xE1,0xC5,0x45,0x78,0xA5,0x2D,0x83,0xC1,0x1,0xE5,0xC5,0x8E,0xF5,0x2F,0x3,0xD,0xEE,0x2E,0x9D,0x29,0xB6,0x94,0x9A,0xDF,0xA6,0x95,0x97,0xAE};
@@ -305,6 +307,8 @@ const job_packet Jb1 = {{0xE6,0x18,0x6E,0xD1,0xF6,0x67,0xA5,0xBD,0xEC,0x43,0x10,
 
 u32 dwTimeStart;
 u32 dwTimeEnd;
+u8 cGoodEngineCount[TOTAL_CHIPS_INSTALLED];
+
 //_BF_CHIP_STATUS BfChipStatusTable[TOTAL_CHIPS_INSTALLED];
 
 void ASIC_LowLevel_Init(void)
@@ -350,6 +354,8 @@ void init_ASIC(void)
 	char iHoveringChip;
 	char iHoveringEngine;
 	u32 dwDelay;
+	u8 cChip;
+	u8 cEngine;
 
 	MCU_SC_Initialize();			//BF done signal configered in SPI init subroutine
 	
@@ -600,6 +606,16 @@ void init_ASIC(void)
 	//{
 	#if defined(__RUN_HEAVY_DIAGNOSTICS_ON_EACH_ENGINE)
 		ASIC_run_heavy_diagnostics();
+		for(cChip=0; cChip<TOTAL_CHIPS_INSTALLED; cChip++)
+		{
+			for(cEngine=0; cEngine<16; cEngine++)
+			{
+				if((__chip_existence_map[cChip] >> cEngine) & 0x01)
+				{
+					cGoodEngineCount[cChip] ++;
+				}
+			}
+		}
 	#endif
 	//}
 	
@@ -682,13 +698,14 @@ void ASIC_run_heavy_diagnostics(void)
 	// Send this job to all engines
 	for (cChip = 0; cChip < TOTAL_CHIPS_INSTALLED; cChip++ )
 	{
+		
+		if (!CHIP_EXISTS(cChip)) continue;
+		//ComTransmitData(COM2, ",W",2);	
 		memcpy((void*)ChipMiningStatus[cChip].cMidstate, (void*)jpDiag.midstate, SHA_MIDSTATE_SIZE);
 		memcpy((void*)ChipMiningStatus[cChip].cBlockdata, (void*)jpDiag.block_data, SHA_BLOCKDATA_SIZE);
 		ChipMiningStatus[cChip].ChipState = MINING;
 		ChipMiningStatus[cChip].cEngineDoneCount = 0;
 		ChipMiningStatus[cChip].cNonceCount = 0;
-		if (!CHIP_EXISTS(cChip)) continue;
-		ComTransmitData(COM2, ",W",2);	
 		for (wEngine = 0; wEngine < 16; wEngine++)
 		{
 			#if defined(DO_NOT_USE_ENGINE_ZERO)
@@ -703,7 +720,7 @@ void ASIC_run_heavy_diagnostics(void)
 			
 		}
 	}
-	ComTransmitData(COM2, "M",1);	
+	//ComTransmitData(COM2, "M",1);	
 	// What is the desired frequency? We'll wait for that much + 40%
 	iTimeToWait = (4294000 / __ASIC_FREQUENCY_VALUES[__ASIC_FREQUENCY_ACTUAL_INDEX]);
 	//iTimeToWait += (iTimeToWait * 8) / 10;		//more than 80% delay is not enough
@@ -789,7 +806,7 @@ void ASIC_run_heavy_diagnostics(void)
 			cTempString[0] = ',';
 			cTempString[1] = _AUX_LEFT_HEX (iStatRet);
 			cTempString[2] = _AUX_RIGHT_HEX(iStatRet);
-			cTempString[3] = 0;
+			//cTempString[3] = 0;
 			ComTransmitData(COM2, cTempString,3);
 			if ((iStatRet == DONE_NO_NONCE) || (iStatRet == IDLE) || (iStatRet == MINING))
 			{
@@ -1143,13 +1160,14 @@ char ASIC_diagnose_processor(u8 iChip, u16 iEngine)
 	
 	memcpy((void*)ChipMiningStatus[iChip].cMidstate, (void*)__stat_midstate, SHA_MIDSTATE_SIZE);
 	memcpy((void*)ChipMiningStatus[iChip].cBlockdata, (void*)__stat_blockdata, SHA_BLOCKDATA_SIZE);
-	ChipMiningStatus[iChip].ChipState = MINING;
-	ChipMiningStatus[iChip].cEngineDoneCount = 0;
-	ChipMiningStatus[iChip].cNonceCount = 0;
+	
 	
 	// Run 20 Tests and check it every time...
 	for (imi = 0; imi < __TOTAL_DIAGNOSTICS_RUN; imi++)
 	{
+		ChipMiningStatus[iChip].ChipState = MINING;
+		ChipMiningStatus[iChip].cEngineDoneCount = 0;
+		ChipMiningStatus[iChip].cNonceCount = 0;
 		// Now send the job to the engine
 		ASIC_job_issue_to_specified_engine(iChip,iEngine, TRUE, TRUE, 0x8D9CB670, 0x8D9CB67A);
 	
@@ -1471,7 +1489,7 @@ u32 ASIC_tune_chip_to_frequency(u8 cChip, u16 wEngine, char bOnlyReturnOperating
 			}
 		}
 	}		
-	
+	ChipMiningStatus[cChip].ChipState = IDLE;
 	// Ok, we have to return the actual frequency
 	//return 0; // Illegal value. This will cause the chip to be deactivated....
 	return iDetectedFrequency;
@@ -1525,7 +1543,7 @@ extern int DATAREG0;
 extern int DATAIN;
 extern int DATAOUT;
 
-u8 cGoodEngineCount[TOTAL_CHIPS_INSTALLED];
+
 
 //==================================================================
 void __initEngines(u8 CHIP);
@@ -2170,7 +2188,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 	
 	// Test all engines
 	ComTransmitData(COM2, "r",1);
-	UartBackDoorByte(cChip);
+	//UartBackDoorByte(cChip);
 	for (y_engine = 0; y_engine < 16; y_engine++)
 	{
 		// skip bad engine
@@ -2323,9 +2341,9 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 
 	// Proceed
 	i_status_reg = __ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_READ_STATUS_REGISTER);
-	ComTransmitData(COM2, ",",1);
-	UartBackDoorWord(wEngine);
-	UartBackDoorWord(i_status_reg);
+	//ComTransmitData(COM2, ",",1);
+	//UartBackDoorWord(wEngine);
+	//UartBackDoorWord(i_status_reg);
 
 	//if engine done, process result
 	if ((i_status_reg & ASIC_SPI_READ_STATUS_DONE_BIT) == ASIC_SPI_READ_STATUS_DONE_BIT)
@@ -2409,7 +2427,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 			__ASIC_WriteEngine(cChip, wEngine, ASIC_SPI_WRITE_REGISTER, (0));				
 		}
 
-		if(ChipMiningStatus[cChip].cEngineDoneCount != 0)
+		if(ChipMiningStatus[cChip].cNonceCount != 0)
 		{
 			TempChipStatus = DONE_HAVE_NONCE;
 		}
@@ -2513,15 +2531,15 @@ void ASIC_job_issue(u8 cChip)
 	
 
 
-	ComTransmitData(COM2, "S",1);
-	UartBackDoorByte(cChip);
+	//ComTransmitData(COM2, "S",1);
+	//UartBackDoorByte(cChip);
 	// We assign the splitted job to each engine in this chip
 	for (y_engine = 0; y_engine < 16; y_engine++)
 	{
 		// Is this processor healthy?
 		if (!IS_PROCESSOR_OK(cChip, y_engine)) continue;
 		ASIC_job_issue_to_specified_engine(cChip,y_engine,TRUE,TRUE,iLowerRange,iUpperRange);
-		ComTransmitData(COM2, "m",1);
+		//ComTransmitData(COM2, "m",1);
 	
 		// Increase our range
 		iLowerRange += iRangeSlice;
@@ -2545,7 +2563,7 @@ void ASIC_job_issue(u8 cChip)
 	// ON STARTUP (I.E. CHIPS WILL NOT HAVE THEIR STATIC VALUES SET)
 	// ORIGINAL> if (bIssueToSingleChip == FALSE) bIsThisOurFirstTime = FALSE; // We only set it to false if we're sending the job to all engines on the BOARD
 	//bIsThisOurFirstTime = FALSE; // We only set it to false if we're sending the job to all engines on the BOARD
-	ComTransmitData(COM2, "K",1);
+	//ComTransmitData(COM2, "K",1);
 	//if (bIssueToSingleChip == FALSE)
 	//{
 		// Set our timestamp
@@ -2612,7 +2630,7 @@ void ASIC_job_issue_to_specified_engine(u8  iChip,
 	// Error Check: _HighRange - _LowRange must be at least 256
 	//char x_chip = iChip;
 	//char y_engine = iEngine;
-	ComTransmitData(COM2, "N",1);	
+	//ComTransmitData(COM2, "N",1);	
 	//if (!CHIP_EXISTS(iChip)) return;
 	//if (!IS_PROCESSOR_OK(x_chip, y_engine)) return;
 	

@@ -36,7 +36,7 @@ typedef struct _USB_EP_PROCESS
 	u8	cEp2Out;
 } USB_EP_PROCESS;
 
-#define USB_LOOP_BUFFER_SIZE 1536
+#define USB_LOOP_BUFFER_SIZE 512
 #define USB_IDLE_INTERVAL 15 			// unit mS, using SOF to count
 
 #define	ENDP0_MAX_PACKET_SIZE	0x40

@@ -43,6 +43,17 @@ extern SOFT_TIMER SoftTimer0;
 extern u16 	wReceiveLoopBufferStart;
 extern u8 	cUsbReceiveLoopBuffer[USB_LOOP_BUFFER_SIZE];
 extern __CHIP_PROCESSING_STATUS ChipMiningStatus[TOTAL_CHIPS_INSTALLED];
+extern u8 cChipIdle_NoResult_String[];
+extern u8 cChipMining_NoResult_String[];
+extern u8 cChipMining_HaveResult_Presemble[];
+extern u8 cChipIdle_HaveResult_Presemble[];
+extern __USB_RETURN_JOB_STATUS ReturnJobStatus;
+extern u8 cUsbReturnJobString[700];
+extern u16 wUsbReturnJobStringEnd;
+extern u8 cUsbReturnJobIsUnfinished;
+extern u8 cUsbHaveReturnJobs;
+extern u16 wUsbReturnJobLeftStringPointer;
+extern unsigned char __aux_CharMap[];
 
 
 // Declared somewhere else
@@ -54,7 +65,7 @@ unsigned int GLOBAL_ResBufferCompilationLatency;
 unsigned int GLOBAL_USBToHostLatency;
 
 BF_USB_PROTOCOL_OUT_PIPE_DATA_BELONGS_Def UsbOutDataBelongs;
-const unsigned char __aux_CharMap[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
 
 
 
@@ -580,6 +591,7 @@ PROTOCOL_RESULT Protocol_info_request(void)
 				}
 				
 			#endif 
+			ChipMiningStatus[umx].ChipState = IDLE;
 		}
 		
 		sprintf(szTemp,"THEORETICAL MAX: %d MH/s\n", iTheoreticalMaxSpeed);
@@ -2087,145 +2099,74 @@ PROTOCOL_RESULT	Protocol_PIPE_BUF_STATUS(void)
 {
 	// Our result
 	PROTOCOL_RESULT res = PROTOCOL_SUCCESS;
-
-	// We can take the job (either we start processing or we put it in the buffer)
-	char sz_rep[3500];
-	char sz_temp[256];
-	//char sz_temp2[256];
-	//char sz_temp3[32];
-	//unsigned int istream_len;
-	char i_cnt;
-
-	// Should we do an engine start at the end of the function?
-	//char i_engine_start_req = 0;
-	unsigned int iActualTerminationIndex;
-	//int iStrLen;
-	char bXTimeoutDetected;
-
-	// How many jobs can we take in?
-	
-	/*sprintf(sz_temp, "STORAGE:%d\n", PIPE_MAX_BUFFER_DEPTH-__total_jobs_in_buffer);
-	strcat(sz_rep, sz_temp);*/
-
-	// What is the actual
-	// Are we processing something?
-	//unsigned int  found_nonce_list[8];
-	//char found_nonce_count;
-	
-	// How many jobs to take? The smallest between 15 and "total results in buffer"
-	unsigned int iTotalResultsToTake = 0;
-	//unsigned char bHaveMoreResultsForNextTransaction = FALSE;
-	strcpy(sz_rep,"");
-	/*		need fix later
-	if (JobPipe__pipe_get_buf_job_results_count() <= MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER)
-	{
-		iTotalResultsToTake = JobPipe__pipe_get_buf_job_results_count();
-	}
-	else
-	{
-		iTotalResultsToTake = MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER;
-		bHaveMoreResultsForNextTransaction = TRUE;
-	}*/
-
-	// How many results?
-	//sprintf(sz_temp,"INPROCESS:%d\n", ((PipeKernel_WasPreviousJobFromPipe() == TRUE) || (bHaveMoreResultsForNextTransaction == TRUE)) ? 1 : 0);
-	//need fix later
-	strcat(sz_rep, sz_temp);
-		
-	//sprintf(sz_temp,"COUNT:%d\n", JobPipe__pipe_get_buf_job_results_count());
-	sprintf(sz_temp,"COUNT:%d\n", iTotalResultsToTake);	
-	strcat(sz_rep, sz_temp);
-
-	// What is our last index?
-	iActualTerminationIndex = strlen(sz_rep);
+	//char i_cnt;
+	//unsigned int iActualTerminationIndex;
+	//char bXTimeoutDetected;
+	//unsigned int iTotalResultsToTake = 0;
+	u16 wJobStringLength;
+	u16 wActualUsbSendLength;
 
 	GLOBAL_BufResultToUSBLatency = MACRO_GetTickCountRet;
-	GLOBAL_ResBufferCompilationLatency = MACRO_GetTickCountRet;
-	
-	
-	// Ok, return the last result as well
-	if (iActualTerminationIndex)   //need fix later   (JobPipe__pipe_get_buf_job_results_count() == 0)
-	{
-		// We simply do nothing... Just add the <LF> to the end of the line
-	}
-	else
-	{
-		// Now post them one by one
-		for (i_cnt = 0; i_cnt < iTotalResultsToTake; i_cnt++)
-		{
-			// Get our job
-			//pbuf_job_result_packet pjob_res = (pbuf_job_result_packet)(JobPipe__pipe_get_buf_job_result(i_cnt));
-			
-			// Add it to stream
-			//__aux_PrintResultToBuffer(sz_rep, pjob_res, iActualTerminationIndex, &iActualTerminationIndex);
-			
-			// Also say which midstate and nonce-range is in process
-			/*
-			stream_to_hex(pjob_res->midstate , sz_temp2, 32, &istream_len);
-			sz_temp2[istream_len] = 0;
-			stream_to_hex(pjob_res->block_data, sz_temp3, 12, &istream_len);
-			sz_temp3[istream_len] = 0;		
-			
-			// Add nonce-count...
-			  unsigned char iNonceCount = pjob_res->i_nonce_count;
-			
-			#if defined(QUEUE_OPERATE_ONE_JOB_PER_CHIP)
-				//sprintf(sz_temp,"%s,%s,%X,%d", sz_temp2, sz_temp3, pjob_res->iProcessingChip, iNonceCount); // Add midstate, block-data, count and nonces...
-				//strcat(sz_rep, sz_temp);
-				sprintf(sz_temp,"%s,%s,%d", sz_temp2, sz_temp3, iNonceCount); // Add midstate, block-data, count and nonces...
-				strcat(sz_rep, sz_temp);				
-			#else
-				sprintf(sz_temp,"%s,%s,%d", sz_temp2, sz_temp3, iNonceCount); // Add midstate, block-data, count and nonces...
-				strcat(sz_rep, sz_temp);			
-			#endif
-			
-			// If there are nonces, add a comma here
-			if (iNonceCount > 0)
-			{
-				 strcat(sz_rep,",");
-			}				 
-					
-			// Nonces found...
-			if ( pjob_res->i_nonce_count > 0)
-			{
-				// Our loop counter
-				unsigned char ix = 0;
-				
-				for (ix = 0; ix < pjob_res->i_nonce_count; ix++)
-				{
-					sprintf(sz_temp2, "%08X", pjob_res->nonce_list[ix]);
-					strcat(sz_rep, sz_temp2);
+	GLOBAL_USBToHostLatency = MACRO_GetTickCountRet;
 
-					// Add a comma if it's not the last nonce
-					if (ix != pjob_res->i_nonce_count - 1) strcat(sz_rep,",");
-				}
-
-				// Add the 'Enter' character
-				strcat(sz_temp, "\n");
+	wUsbReturnJobLeftStringPointer = 0;
+	switch(ReturnJobStatus)
+	{
+		case ChipIdle_NoResult:
+			USB_send_string((char*)cChipIdle_NoResult_String);
+			cUsbReturnJobIsUnfinished = FALSE;
+			break;
+		case Mining_NoResult:
+			USB_send_string((char*)cChipMining_NoResult_String);
+			cUsbReturnJobIsUnfinished = FALSE;
+			break;
+		case Mining_HaveResult:
+			//USB_send_string((char*)cChipMining_HaveResult_Presemble);
+			wJobStringLength = strlen((char*)cUsbReturnJobString);
+			wActualUsbSendLength = USB_write_data(cUsbReturnJobString, wJobStringLength);
+			if(wActualUsbSendLength < wJobStringLength)
+			{
+				cUsbReturnJobIsUnfinished = TRUE;
+				wUsbReturnJobLeftStringPointer = wActualUsbSendLength;
 			}
-
-			// In the end, add the <LF>
-			strcat(sz_rep,"\n");
-			*/
-		}
+			else
+			{
+				cUsbReturnJobIsUnfinished = FALSE;
+				cUsbReturnJobString[18] = '0';		//clear string buffer
+				cUsbReturnJobString[19] = '\n';
+				wUsbReturnJobStringEnd = 20;		//need to skip 2 bytes of  job count char and RETURN char
+				//set the job result to no result temperorily, to avoid send result twice
+				ReturnJobStatus = Mining_NoResult;
+			}
+			break;
+		case ChipIdle_HaveResult:
+			//USB_send_string((char*)cChipIdle_HaveResult_Presemble);
+			wJobStringLength = strlen((char*)cUsbReturnJobString);
+			wActualUsbSendLength = USB_write_data(cUsbReturnJobString, wJobStringLength);
+			if(wActualUsbSendLength < wJobStringLength)
+			{
+				cUsbReturnJobIsUnfinished = TRUE;
+				wUsbReturnJobLeftStringPointer = wActualUsbSendLength + 2; //+2, add the 2 bytes of  job count char and RETURN char or comma
+			}
+			else
+			{
+				cUsbReturnJobIsUnfinished = FALSE;
+				cUsbReturnJobString[18] = '0';		//clear string buffer
+				cUsbReturnJobString[19] = '\n';
+				wUsbReturnJobStringEnd = 20;		//need to skip 2 bytes of  job count char and RETURN char
+				//set the job result to no result temperorily, to avoid send result twice
+				ReturnJobStatus = Mining_NoResult;
+			}
+			break;
+		default:
+			;
+			break;
 	}
-
-	// Add the OK to our response (finilizer)
-	strcat(sz_rep, "OK\n");
 	
-	//iStrLen = 0;
-	//iStrLen = strlen(sz_rep);
-	
-	// Set compilation latency
-	GLOBAL_ResBufferCompilationLatency = MACRO_GetTickCountRet - GLOBAL_ResBufferCompilationLatency;
+	GLOBAL_USBToHostLatency = MACRO_GetTickCountRet - GLOBAL_USBToHostLatency;
+	GLOBAL_BufResultToUSBLatency = MACRO_GetTickCountRet - GLOBAL_BufResultToUSBLatency;
 
-	// Send OK first
-	if (XLINK_ARE_WE_MASTER)
-	{
-		GLOBAL_USBToHostLatency = MACRO_GetTickCountRet;
-		USB_send_string(sz_rep);  // Send it to USB
-		GLOBAL_USBToHostLatency = MACRO_GetTickCountRet - GLOBAL_USBToHostLatency;
-	}		
+	/*
 	else // We're a slave... send it by XLINK
 	{
 		bXTimeoutDetected = 0;
@@ -2234,25 +2175,40 @@ PROTOCOL_RESULT	Protocol_PIPE_BUF_STATUS(void)
 									 __XLINK_TRANSACTION_TIMEOUT__,
 									 &bXTimeoutDetected,
 									 FALSE);
-	}		
+	}	*/	
 
-	// Also, we clear the results buffer
-	//JobPipe__pipe_skip_buf_job_results(iTotalResultsToTake);
-	
-	// Also say how long it has taken
-	GLOBAL_BufResultToUSBLatency = MACRO_GetTickCountRet - GLOBAL_BufResultToUSBLatency;
-	
-	// Also Flush jobs into engines
-	// PipeKernel_Spin();
-	
 	// Return the result...
 	return res;
 }
 
-// Accelerate buffer compilation 
+void UsbSendTheLeftJobResult(void)
+{
+	u16 wActualSendLength;
+	u16 wUnsendResultLength;
 
-//#define _AUX_LEFT_HEX(x)   (__aux_CharMap[((x & 0xF0) >> 4)]) 
-//#define _AUX_RIGHT_HEX(x)  (__aux_CharMap[(x & 0x0F)]) 
+	wUnsendResultLength = strlen((char*)((char*)cUsbReturnJobString + wUsbReturnJobLeftStringPointer));
+	wActualSendLength = USB_write_data(((u8*)((u8*)cUsbReturnJobString + wUsbReturnJobLeftStringPointer)),wUnsendResultLength);
+
+	if(wActualSendLength != 0)   //=0 means usb tx buffer is full, do nothing
+	{
+		if(wActualSendLength < wUnsendResultLength)
+		{
+			wUsbReturnJobLeftStringPointer += wActualSendLength;   //shift the pointer to start of unsend
+		}
+		else	//all results send out
+		{
+			cUsbReturnJobIsUnfinished = FALSE;
+			cUsbReturnJobString[18] = '0';		//clear string buffer
+			cUsbReturnJobString[19] = '\n';
+			wUsbReturnJobStringEnd = 20;		//need to skip 2 bytes of  job count char and RETURN char
+
+			//set the job result to no result temperorily, to avoid send result twice
+			ReturnJobStatus = Mining_NoResult;
+		}
+	}
+}
+
+
 
   void __aux_PrintResultToBuffer(char* szBuffer, const void* pResult, const unsigned int iStartPosition, unsigned int* iEndPositionPlusOne)
 {

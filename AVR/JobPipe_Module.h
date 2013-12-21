@@ -13,13 +13,23 @@
 // Job structure...
 #define SHA256_Test_String  "2f33a240bd6785caed5b67b4122079dd9359004ae23c64512c5c2dfbce097b08"
 
+
 /// ************************** This is our Pipelined job processing system (holder of 2 jobs + 1 process)
 #define PIPE_MAX_BUFFER_DEPTH	 40
 #define PIPE_JOB_BUFFER_OK		 0
 #define PIPE_JOB_BUFFER_FULL	 1
 #define PIPE_JOB_BUFFER_EMPTY	 2
 
-#define MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER 4
+#define MAX_RESULTS_TO_SEND_AT_A_TIME_FROM_BUFFER 4   //because reserved ONLY ONE byte to save result count, the MAX should not exceed 9!!!
+														//because of tight SRAM, only permit max =5
+
+typedef enum
+{
+	ChipIdle_NoResult = 0,
+	Mining_NoResult,
+	Mining_HaveResult,
+	ChipIdle_HaveResult
+}__USB_RETURN_JOB_STATUS;
 
 void 	JobPipe_init(void);
 void 	JobPipe__pipe_flush_buffer(void);
@@ -34,6 +44,9 @@ buf_job_result_packet* JobPipe_FetchJobResultFromFifo(void);
 u8 		JobPipe_GetNewJobFifoAvailableSpace(void);
 u8 		JobPipe_GetJobResultCountInFifo(void);
 u8 		JobPipe_GetNewJobCountInFifo(void);
+void 	JobPipe_ConvertJobResult2UsbStringBuffer(void);
+
+
 
 
 

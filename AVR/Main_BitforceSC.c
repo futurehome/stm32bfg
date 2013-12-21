@@ -144,7 +144,8 @@ void AVR_main(void)
 	//while (MACRO_GetTickCountRet + 2 - iHolder < 500000) WATCHDOG_RESET;
 	//__MCU_ASIC_Activate_CS();
 	//__MCU_ASIC_Deactivate_CS();
-	dwDelay = 0x40ffff;
+	//dwDelay = 0x40ffff;
+	dwDelay = 0x40;
 			while((dwDelay--) != 0)
 			{
 			}

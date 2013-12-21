@@ -66,6 +66,8 @@ char sz_cmd[1024];
 u8 	cUsbConfigured;
 u8  cUsbTxUnfinished;
 __CHIP_PROCESSING_STATUS ChipMiningStatus[TOTAL_CHIPS_INSTALLED];
+const unsigned char __aux_CharMap[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
 
 
 
@@ -761,7 +763,7 @@ void GlobalVariableInitialize(void)
 		ChipMiningStatus[cChip].cFrequencySlect = __ASIC_FREQUENCY_ACTUAL_INDEX;
 		ChipMiningStatus[cChip].dwCalcTimePerChip = 3000;		//set calc time is 30s
 		ClearSoftTimerEx(cChip);
-		cGoodEngineCount[cChip] = 16;
+		cGoodEngineCount[cChip] = 0;
 	}
 }
 
