@@ -240,6 +240,7 @@ buf_job_result_packet* JobPipe_FetchJobResultFromFifo(void)
 {
 	buf_job_result_packet * FetchedJobResult;
 
+	//shut down com2
 	//ComTransmitData(COM2, ",p",2);
 
 	FetchedJobResult = (buf_job_result_packet*)(&(JobResultFifo[cJobResultFifoStart]));
