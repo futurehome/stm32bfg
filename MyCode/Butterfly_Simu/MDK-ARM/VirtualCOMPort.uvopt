@@ -1099,7 +1099,7 @@
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>773</TopLine>
-      <CurrentLine>779</CurrentLine>
+      <CurrentLine>773</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</PathWithFileName>
       <FilenameWithoutPath>stm32f10x_spi.c</FilenameWithoutPath>
@@ -1889,8 +1889,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>735</TopLine>
-      <CurrentLine>738</CurrentLine>
+      <TopLine>2192</TopLine>
+      <CurrentLine>2195</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\AVR\ASIC_Engine.c</PathWithFileName>
       <FilenameWithoutPath>ASIC_Engine.c</FilenameWithoutPath>
@@ -2257,10 +2257,16 @@
       <ActiveTab>3</ActiveTab>
       <Documents>
         <Doc>
+          <Name>..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>773</TopLine>
+          <CurrentLine>773</CurrentLine>
+        </Doc>
+        <Doc>
           <Name>..\..\..\AVR\ASIC_Engine.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>735</TopLine>
-          <CurrentLine>738</CurrentLine>
+          <TopLine>2192</TopLine>
+          <CurrentLine>2195</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\src\stm32_it.c</Name>
@@ -2351,12 +2357,6 @@
           <ColumnNumber>0</ColumnNumber>
           <TopLine>371</TopLine>
           <CurrentLine>377</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>773</TopLine>
-          <CurrentLine>779</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_core.c</Name>

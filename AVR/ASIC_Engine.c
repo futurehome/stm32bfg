@@ -2187,7 +2187,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 	}
 	
 	// Test all engines
-	ComTransmitData(COM2, "r",1);
+	//ComTransmitData(COM2, "r",1);
 	//UartBackDoorByte(cChip);
 	for (y_engine = 0; y_engine < 16; y_engine++)
 	{
@@ -2202,7 +2202,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 		cTempString[2] = __aux_CharMap[(i_status_reg >>8)& 0x0F];
 		cTempString[3] = __aux_CharMap[(i_status_reg >>4)& 0x0F];
 		cTempString[4] = __aux_CharMap[(i_status_reg)& 0x0F];
-		ComTransmitData(COM2, cTempString,5);
+		//ComTransmitData(COM2, cTempString,5);
 
 		//if engine done, process result
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_DONE_BIT) == ASIC_SPI_READ_STATUS_DONE_BIT)
@@ -2215,7 +2215,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO0_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH2_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2224,7 +2224,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO1_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH3_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2233,7 +2233,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO2_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH4_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2242,7 +2242,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO3_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH5_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2251,7 +2251,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO4_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH6_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2260,7 +2260,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO5_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH7_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2269,7 +2269,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO6_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 			if (((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH8_BIT) != 0)
 					&& (ChipMiningStatus[cChip].cNonceCount < MAX_NONCE_IN_RESULT))
@@ -2278,7 +2278,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status(u8 cChip)
 						  (__ASIC_ReadEngine(cChip, y_engine, ASIC_SPI_FIFO7_HWORD) << 16); 
 				ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 				ChipMiningStatus[cChip].cNonceCount ++;
-				UartBackDoor(dwNonce);
+				//UartBackDoor(dwNonce);
 			}
 
 			// Clear the engine FIFO when finished read out nonce[ NOTE : CORRECT !!!!!!!!!!!! ]
@@ -2355,7 +2355,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO0_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH2_BIT) != 0)
 		{ 
@@ -2363,7 +2363,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO1_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH3_BIT) != 0)
 		{ 
@@ -2371,7 +2371,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO2_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH4_BIT) != 0)
 		{ 
@@ -2379,7 +2379,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO3_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH5_BIT) != 0)
 		{ 
@@ -2387,7 +2387,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO4_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH6_BIT) != 0)
 		{ 
@@ -2395,7 +2395,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO5_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH7_BIT) != 0)
 		{ 
@@ -2403,7 +2403,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO6_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 		if ((i_status_reg & ASIC_SPI_READ_STATUS_FIFO_DEPTH8_BIT) != 0)
 		{ 
@@ -2411,7 +2411,7 @@ __CHIP_WORKING_STATE ASIC_get_job_status_from_engine(u8 cChip, u16 wEngine)
 					  (__ASIC_ReadEngine(cChip, wEngine, ASIC_SPI_FIFO7_HWORD) << 16); 
 			ChipMiningStatus[cChip].dwNonceList[ChipMiningStatus[cChip].cNonceCount]= dwNonce; 
 			ChipMiningStatus[cChip].cNonceCount ++;
-			UartBackDoor(dwNonce);
+			//UartBackDoor(dwNonce);
 		}
 
 		// Clear the engine FIFO when finished read out nonce[ NOTE : CORRECT !!!!!!!!!!!! ]

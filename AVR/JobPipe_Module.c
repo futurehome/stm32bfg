@@ -229,6 +229,7 @@ void JobPipe_AddJobResult2Fifo(u8 cChip)
 	JobResultFifo[cJobResultFifoEnd].i_nonce_count = ChipMiningStatus[cChip].cNonceCount;
 	memcpy((void*)JobResultFifo[cJobResultFifoEnd].nonce_list, (void*)ChipMiningStatus[cChip].dwNonceList, MAX_NONCE_IN_RESULT * sizeof(u32));
 
+	
 	// Increase the end pointer of job result fifo
 	cJobResultFifoEnd ++;
 	if(cJobResultFifoEnd == PIPE_MAX_BUFFER_DEPTH)
@@ -325,6 +326,7 @@ void JobPipe_ConvertJobResult2UsbStringBuffer(void)
 {
 	u8 i, j, k;
 	u8 cJobResultCount;
+	buf_job_result_packet* JobResult;
 	//u8 cPreviousJobResultCount;
 	//u8 cTempChar;
 	
@@ -351,12 +353,13 @@ void JobPipe_ConvertJobResult2UsbStringBuffer(void)
 				cUsbReturnJobString[19] = '\n';			//should be RETURN char
 				for(i=0; i<cJobResultCount; i++)
 				{
+					JobResult = JobPipe_FetchJobResultFromFifo();
 					//convert and store midstate
 					for (j = 0; j < 32; j++)
 					{
-						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResultFifo[cJobResultFifoStart].midstate[j]);
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResult->midstate[j]);
 						wUsbReturnJobStringEnd ++;
-						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResultFifo[cJobResultFifoStart].midstate[j]);
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResult->midstate[j]);
 						wUsbReturnJobStringEnd ++;
 					}
 					//adding a comma
@@ -365,47 +368,47 @@ void JobPipe_ConvertJobResult2UsbStringBuffer(void)
 					//convert and store block data
 					for (j = 0; j < 12; j++)
 					{
-						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResultFifo[cJobResultFifoStart].block_data[j]);
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_LEFT_HEX(JobResult->block_data[j]);
 						wUsbReturnJobStringEnd ++;
-						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResultFifo[cJobResultFifoStart].block_data[j]);
+						cUsbReturnJobString[wUsbReturnJobStringEnd] = _AUX_RIGHT_HEX(JobResult->block_data[j]);
 						wUsbReturnJobStringEnd ++;
 					}
 					//adding a comma
 					cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
 					wUsbReturnJobStringEnd ++;
 					//adding chip number
-					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResultFifo[cJobResultFifoStart].iProcessingChip];
+					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResult->iProcessingChip];
 					wUsbReturnJobStringEnd ++;
 					//adding a comma
 					cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
 					wUsbReturnJobStringEnd ++;
 					//adding nonce count
-					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResultFifo[cJobResultFifoStart].i_nonce_count];
+					cUsbReturnJobString[wUsbReturnJobStringEnd] =  __aux_CharMap[JobResult->i_nonce_count];
 					wUsbReturnJobStringEnd ++;
 					//adding nonce list
-					if(JobResultFifo[cJobResultFifoStart].i_nonce_count > 0)
+					if(JobResult->i_nonce_count > 0)
 					{
-						for(k=0; k<JobResultFifo[cJobResultFifoStart].i_nonce_count; k++)
+						for(k=0; k<JobResult->i_nonce_count; k++)
 						{
 							//adding a comma
 							cUsbReturnJobString[wUsbReturnJobStringEnd] = ',';
 							wUsbReturnJobStringEnd ++;
 							//adding a nonce
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 28) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 28) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 24) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 24) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 20) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 20) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 16) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 16) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 12) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 12) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 8) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 8) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k] >> 4) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k] >> 4) & 0x0F];
 							wUsbReturnJobStringEnd ++;
-							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResultFifo[cJobResultFifoStart].nonce_list[k]) & 0x0F];
+							cUsbReturnJobString[wUsbReturnJobStringEnd] = __aux_CharMap[(JobResult->nonce_list[k]) & 0x0F];
 							wUsbReturnJobStringEnd ++;
 						}
 					}
@@ -415,10 +418,6 @@ void JobPipe_ConvertJobResult2UsbStringBuffer(void)
 					}
 					cUsbReturnJobString[wUsbReturnJobStringEnd] = '\n';
 					wUsbReturnJobStringEnd ++;
-			
-
-					//finished to convert and store a job result, increase result buffer start pointer
-					cJobResultFifoStart ++;
 				}
 				cUsbReturnJobString[wUsbReturnJobStringEnd] = 'O';
 				wUsbReturnJobStringEnd ++;
