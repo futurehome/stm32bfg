@@ -238,6 +238,7 @@ void JobPipe_AddJobResult2Fifo(u8 cChip)
 	}
 }
 
+//go back to master
 buf_job_result_packet* JobPipe_FetchJobResultFromFifo(void)
 {
 	buf_job_result_packet * FetchedJobResult;
